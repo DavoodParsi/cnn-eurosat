@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build artifacts (created by `pip install -e .`)
+*.egg-info/
+build/
+dist/
+
+# Datasets, model weights and generated outputs
+data/
+outputs/
+*.keras
+*.h5
+*.npz
+
+# Experiment tracking
+wandb/
+
+# Secrets
+.env
+
+# Editor settings
+.vscode/
