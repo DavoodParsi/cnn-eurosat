@@ -271,7 +271,7 @@ def initialize_wandb_run(
         The active W&B Run.
 
     Notes:
-        reinit=True lets a notebook re-run the initialization cell
+        reinit="finish_previous" lets a notebook re-run the initialization cell
         without manually finishing the previous run. It does not apply
         to the resume path, which always reconnects to run_id.
     """
@@ -310,7 +310,7 @@ def initialize_wandb_run(
         notes=notes,
         config=config,
         mode=mode,
-        reinit=True,
+        reinit="finish_previous",
     )
 
 
