@@ -377,6 +377,62 @@ def load_wandb_run_state(path: str | Path) -> dict[str, str]:
 
     return state
 
+def start_or_resume_wandb_run(
+    state_path: str | Path,
+    *,
+    model_type: str,
+    phase: str,
+    experiment_type: str,
+    config: dict[str, Any] | None = None,
+    **init_kwargs: Any,
+) -> tuple["wandb.Run", bool]:
+    """Resume the run saved at state_path, or start a new one.
+
+    If a run-state file exists (e.g. from before a Colab runtime
+    reset), that exact run is resumed so training and evaluation logs
+    stay on one timeline. Otherwise a new run is created and its
+    identity is saved to state_path.
+
+    Args:
+        state_path: Path of the run-state JSON file.
+        model_type: Short model identifier.
+        phase: Project phase.
+        experiment_type: Type of experiment.
+        config: Run configuration. Used only when a new run is created.
+        **init_kwargs: Extra arguments for initialize_wandb_run
+            (run_name, extra_tags, notes, project, entity, mode).
+
+    Returns:
+        Tuple of (run, resumed). `resumed` is True if an existing run
+        was resumed.
+    """
+    state_path = Path(state_path)
+
+    if state_path.is_file():
+        state = load_wandb_run_state(state_path)
+
+        run = initialize_wandb_run(
+            model_type=model_type,
+            phase=phase,
+            experiment_type=experiment_type,
+            run_id=state["run_id"],
+            **init_kwargs,
+        )
+
+        return run, True
+
+    run = initialize_wandb_run(
+        model_type=model_type,
+        phase=phase,
+        experiment_type=experiment_type,
+        config=config,
+        **init_kwargs,
+    )
+
+    save_wandb_run_state(run, state_path)
+
+    return run, False
+
 
 # --------------------------------------------
 # Experiment Configuration
