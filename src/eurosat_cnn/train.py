@@ -21,6 +21,7 @@ from pathlib import Path
 
 from tensorflow import keras
 
+import json
 
 # --------------------------------------------
 # Early Stopping
@@ -170,3 +171,78 @@ def build_cosine_lr_schedule(
         decay_steps=decay_steps,
         alpha=alpha,
     )
+
+
+# --------------------------------------------
+# Model Compilation
+# --------------------------------------------
+
+def compile_model(
+    model: keras.Model,
+    *,
+    learning_rate: float | keras.optimizers.schedules.LearningRateSchedule,
+    weight_decay: float,
+) -> keras.Model:
+    """Compile a classifier with AdamW and categorical cross-entropy.
+
+    The model is compiled in place and also returned for convenience.
+    The only metric is categorical accuracy, named "accuracy" so that
+    Keras logs it as "accuracy" / "val_accuracy".
+
+    Args:
+        model: Uncompiled Keras model with a softmax output.
+        learning_rate: A plain float (use with ReduceLROnPlateau) or a
+            LearningRateSchedule (see the module docstring).
+        weight_decay: AdamW weight decay.
+
+    Returns:
+        The compiled model.
+    """
+    optimizer = keras.optimizers.AdamW(
+        learning_rate=learning_rate,
+        weight_decay=weight_decay,
+    )
+
+    model.compile(
+        optimizer=optimizer,
+        loss=keras.losses.CategoricalCrossentropy(),
+        metrics=[keras.metrics.CategoricalAccuracy(name="accuracy")],
+    )
+
+    return model
+
+
+# --------------------------------------------
+# Training History
+# --------------------------------------------
+
+def save_training_history(
+    history_dict: dict[str, list],
+    path: str | Path,
+) -> str:
+    """Save a training-history dict as JSON.
+
+    Saved to disk so later sections (e.g. error analysis) can reload it
+    even in a fresh runtime where the `history` object no longer exists
+    in memory.
+
+    Args:
+        history_dict: Metric name -> per-epoch values, e.g. from
+            tracking.get_training_history_dict(history).
+        path: Destination JSON file (parent folder is created).
+
+    Returns:
+        Path to the saved JSON file.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    serializable = {
+        key: [float(value) for value in values]
+        for key, values in history_dict.items()
+    }
+
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(serializable, file, indent=4)
+
+    return str(path)
