@@ -13,8 +13,8 @@ A custom residual CNN for 10-class land-use classification on the EuroSAT RGB da
 
 The test set is locked and has not been evaluated.
 
-![Training history](docs/figures/training_history.png)
-![Confusion matrix](docs/figures/confusion_matrix.png)
+![Training history](docs/figures/high_phase-1_baseline_training_history.png)
+![Confusion matrix](docs/figures/high_phase-1_baseline_validation_confusion_matrix.png)
 
 ### Error analysis
 
@@ -28,8 +28,8 @@ The test set is locked and has not been evaluated.
 
 Grad-CAM and visual inspection suggest shared vegetation/texture cues and ambiguous blue/green regions. These are treated as hypotheses, not confirmed causes.
 
-![High-confidence error samples](docs/figures/error_samples.png)
-![Grad-CAM example](docs/figures/gradcam_example.png)
+![High-confidence error samples](docs/figures/high_phase-1_baseline_error_analysis.png)
+![Grad-CAM example](docs/figures/high_phase-1_baseline_grad_cam_sample_3869.png)
 
 ### Experiment 1: larger input (128×128)
 
