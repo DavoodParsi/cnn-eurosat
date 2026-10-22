@@ -13,6 +13,9 @@ A custom residual CNN for 10-class land-use classification on the EuroSAT RGB da
 
 The test set is locked and has not been evaluated.
 
+![Training history](docs/figures/training_history.png)
+![Confusion matrix](docs/figures/confusion_matrix.png)
+
 ### Error analysis
 
 153 of 4,054 validation images are misclassified, and 55 of those errors (36%) have confidence of at least 0.80. The errors cluster around a few visually overlapping class pairs:
@@ -24,6 +27,9 @@ The test set is locked and has not been evaluated.
 - AnnualCrop → River
 
 Grad-CAM and visual inspection suggest shared vegetation/texture cues and ambiguous blue/green regions. These are treated as hypotheses, not confirmed causes.
+
+![High-confidence error samples](docs/figures/error_samples.png)
+![Grad-CAM example](docs/figures/gradcam_example.png)
 
 ### Experiment 1: larger input (128×128)
 
