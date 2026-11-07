@@ -314,16 +314,24 @@ def initialize_wandb_run(
     )
 
 
-def finish_wandb_run(run: "wandb.Run | None" = None) -> None:
+def finish_wandb_run(
+    run: "wandb.Run | None" = None,
+    exit_code: int = 0,
+) -> None:
     """Finish the W&B run cleanly.
 
     Passing the run explicitly keeps this usable in both notebook and
     script workflows; without it the active global run is finished.
+
+    Args:
+        run: W&B Run to finish (default: the active global run).
+        exit_code: 0 marks the run as finished; a non-zero value marks
+            it as failed in W&B.
     """
     if run is not None:
-        run.finish()
+        run.finish(exit_code=exit_code)
     else:
-        wandb.finish()
+        wandb.finish(exit_code=exit_code)
 
 
 def save_wandb_run_state(run: "wandb.Run", path: str | Path) -> None:
