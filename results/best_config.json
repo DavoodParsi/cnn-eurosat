@@ -1,0 +1,15 @@
+{
+    "selection_rule": "lowest validation loss; ties broken by validation accuracy at the best-loss epoch",
+    "sweep_id": "kly6qtur",
+    "run_id": "4gsxzdp2",
+    "hyperparameters": {
+        "learning_rate": 0.0002,
+        "weight_decay": 0.0001,
+        "dropout_rate": 0.3
+    },
+    "best_val_loss": 0.12754033505916595,
+    "val_accuracy_at_best_loss": 0.953132688999176,
+    "best_epoch": 15,
+    "max_epochs": 15,
+    "best_at_epoch_limit": true
+}
