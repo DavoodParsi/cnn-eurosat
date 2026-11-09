@@ -1,0 +1,20 @@
+{
+    "selection_rule": "lowest validation loss",
+    "selected_model": "baseline",
+    "baseline": {
+        "Validation loss": 0.10877645602185312,
+        "Accuracy": 0.9622594967932906,
+        "Macro-F1": 0.9619391600522134,
+        "Total errors": 153,
+        "SeaLake -> Forest": 21,
+        "Pasture -> Forest": 10
+    },
+    "tuned": {
+        "Validation loss": 0.1277601215611061,
+        "Accuracy": 0.9555994079921065,
+        "Macro-F1": 0.9559449940528457,
+        "Total errors": 180,
+        "SeaLake -> Forest": 40,
+        "Pasture -> Forest": 11
+    }
+}
