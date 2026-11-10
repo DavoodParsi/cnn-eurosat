@@ -33,7 +33,20 @@ Grad-CAM and visual inspection suggest shared vegetation/texture cues and ambigu
 
 ### Experiment 1: larger input (128×128)
 
-An interrupted run reached 96.69% validation accuracy (loss 0.0973) before training was stopped by hardware limits. Because it did not finish, it is documented as promising but inconclusive. Phase 2 (retraining and hyperparameter search with W&B sweeps) is in progress.
+An interrupted run reached 96.69% validation accuracy (loss 0.0973) before training was stopped by hardware limits. Because it did not finish, it is documented as promising but inconclusive. Phase 2 (hyperparameter search and retraining) is described below.
+
+## Phase 2: hyperparameter tuning
+
+A 27-configuration grid search with W&B sweeps (learning rate 5e-5 / 1e-4 / 2e-4, weight decay 1e-5 / 1e-4 / 1e-3, dropout 0.3 / 0.4 / 0.5; 15 epochs per trial) selected `learning rate 2e-4, weight decay 1e-4, dropout 0.3`. Retrained with the Baseline's budget (50 epochs, early stopping patience 5), it **did not beat the Baseline**, so the Baseline remains the final model.
+
+| Model (validation set) | Loss | Accuracy | Macro F1 | Errors | SeaLake → Forest |
+|---|---|---|---|---|---|
+| Baseline | 0.1088 | 96.23% | 0.9619 | 153 | 21 |
+| Tuned | 0.1278 | 95.56% | 0.9559 | 180 | 40 |
+
+The short 15-epoch sweep likely favoured fast-learning configurations (higher learning rate, lower dropout): the tuned configuration gained almost nothing from the longer budget, while the Baseline configuration improved a lot (validation loss 0.1921 to 0.1088). This is a hypothesis, not a confirmed cause: each configuration was run with a single seed, and the best of 27 was selected on the same validation set.
+
+Experiment tracking: [W&B project](https://wandb.ai/dparsiai-independent/cnn-classification). Sweep ranking, the selected configuration and the comparison tables are in `results/`. Section 3.5 of the notebook reads the published sweeps by default; set `HPT_ANALYSIS_SOURCE = "current"` to analyze a sweep you ran yourself.
 
 ## Model and training
 
@@ -45,7 +58,8 @@ An interrupted run reached 96.69% validation accuracy (loss 0.0973) before train
 
 ## Repository structure
 
-    notebooks/CNN_High_FLOPs.ipynb   Phase 1 analysis (committed without outputs)
+    notebooks/CNN_High_FLOPs.ipynb   Phase 1 and Phase 2 analysis (committed without outputs)
+    results/                         Phase 2 result tables (sweep ranking, selected config comparison)
     src/eurosat_cnn/                 Reusable package
         config.py                    Constants and paths
         environment.py               Seeds, GPU and mixed precision
@@ -59,7 +73,7 @@ An interrupted run reached 96.69% validation accuracy (loss 0.0973) before train
         reporting.py                 Model reports
         tracking.py                  W&B utilities
 
-The notebook is a snapshot of the analysis up to Experiment 1 and contains its own inline code. The `eurosat_cnn` package is the reusable, tested version of the same utilities.
+The notebook is a snapshot of the analysis up to Phase 2 and contains its own inline code. The `eurosat_cnn` package is the reusable, tested version of the same utilities.
 
 ## Setup
 
@@ -80,4 +94,4 @@ Weights & Biases is optional: run `wandb login`, or set `WANDB_MODE=offline`.
 
 ## Status
 
-Phase 1 (baseline and error analysis) is complete. Phase 2 is in progress.
+Phase 1 (baseline and error analysis) and Phase 2 (hyperparameter tuning, Baseline retained) are complete. Final evaluation on the test set is next.
