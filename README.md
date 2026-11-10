@@ -35,18 +35,23 @@ Grad-CAM and visual inspection suggest shared vegetation/texture cues and ambigu
 
 An interrupted run reached 96.69% validation accuracy (loss 0.0973) before training was stopped by hardware limits. Because it did not finish, it is documented as promising but inconclusive. Phase 2 (hyperparameter search and retraining) is described below.
 
-## Phase 2: hyperparameter tuning
 
-A 27-configuration grid search with W&B sweeps (learning rate 5e-5 / 1e-4 / 2e-4, weight decay 1e-5 / 1e-4 / 1e-3, dropout 0.3 / 0.4 / 0.5; 15 epochs per trial) selected `learning rate 2e-4, weight decay 1e-4, dropout 0.3`. Retrained with the Baseline's budget (50 epochs, early stopping patience 5), it **did not beat the Baseline**, so the Baseline remains the final model.
+## Phase 2: Hyperparameter Tuning
+
+A 27-configuration grid search using W&B Sweeps (learning rate: 5e-5 / 1e-4 / 2e-4, weight decay: 1e-5 / 1e-4 / 1e-3, dropout: 0.3 / 0.4 / 0.5; 15 epochs per trial) selected the configuration with the lowest validation loss: `learning rate = 2e-4, weight decay = 1e-4, dropout = 0.3`.
+
+Retrained with the same training budget as the Baseline (up to 50 epochs, early stopping patience 5), it **did not beat the Baseline**, so the Baseline remains the final model.
 
 | Model (validation set) | Loss | Accuracy | Macro F1 | Errors | SeaLake → Forest |
 |---|---|---|---|---|---|
 | Baseline | 0.1088 | 96.23% | 0.9619 | 153 | 21 |
 | Tuned | 0.1278 | 95.56% | 0.9559 | 180 | 40 |
 
-The short 15-epoch sweep likely favoured fast-learning configurations (higher learning rate, lower dropout): the tuned configuration gained almost nothing from the longer budget, while the Baseline configuration improved a lot (validation loss 0.1921 to 0.1088). This is a hypothesis, not a confirmed cause: each configuration was run with a single seed, and the best of 27 was selected on the same validation set.
+The short 15-epoch sweep may have favoured fast-learning configurations (higher learning rate, lower dropout). The tuned configuration gained almost nothing from the longer training budget, while the Baseline configuration improved substantially (validation loss: 0.1921 to 0.1088).
 
-Experiment tracking: [W&B project](https://wandb.ai/dparsiai-independent/cnn-classification). Sweep ranking, the selected configuration and the comparison tables are in `results/`. Section 3.5 of the notebook reads the published sweeps by default; set `HPT_ANALYSIS_SOURCE = "current"` to analyze a sweep you ran yourself.
+This is a hypothesis, not a confirmed explanation: each configuration was evaluated with a single seed, and the best of 27 configurations was selected using the same validation set.
+
+**Experiment Tracking:** Weights & Biases (W&B) was used for experiment tracking and hyperparameter optimization. The project workspace is private, but the key results—including sweep rankings, the selected configuration, and model comparison tables—are publicly available in [`results/`](results/).
 
 ## Model and training
 
@@ -59,7 +64,7 @@ Experiment tracking: [W&B project](https://wandb.ai/dparsiai-independent/cnn-cla
 ## Repository structure
 
     notebooks/CNN_High_FLOPs.ipynb   Phase 1 and Phase 2 analysis (committed without outputs)
-    results/                         Phase 2 result tables (sweep ranking, selected config comparison)
+    results/                         Phase 2 result tables (sweep ranking, selected config, baseline vs tuned).
     src/eurosat_cnn/                 Reusable package
         config.py                    Constants and paths
         environment.py               Seeds, GPU and mixed precision
