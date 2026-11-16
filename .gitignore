@@ -13,7 +13,9 @@ build/
 dist/
 
 # Datasets, model weights and generated outputs
-data/
+# (the split manifest in data/ is tracked; the images are not)
+data/*
+!data/split_manifest.csv
 outputs/
 *.keras
 *.h5
