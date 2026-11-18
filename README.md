@@ -11,7 +11,7 @@ A custom residual CNN for 10-class land-use classification on the EuroSAT RGB da
 | Validation loss | 0.1088 |
 | Parameters | 3.54M |
 
-The test set is locked and has not been evaluated.
+The test set was kept locked during training, tuning and model selection. It was evaluated once at the end; see [Final test results](#final-test-results).
 
 ![Training history](docs/figures/high_phase-1_baseline_training_history.png)
 ![Confusion matrix](docs/figures/high_phase-1_baseline_validation_confusion_matrix.png)
@@ -55,6 +55,65 @@ This is a hypothesis, not a confirmed explanation: each configuration was evalua
 
 Section 3.5.2 of the notebook loads the saved ranking from `results/valid_sweep_comparison.csv`, so the following sections can be followed without W&B access.
 
+
+## Final test results
+
+The selected Baseline model was evaluated **once** on the held-out test set (4,050 images), after all training, tuning and model-selection decisions were finished. No decision was changed after seeing these results.
+
+| Metric | Value |
+|---|---|
+| Accuracy | 96.20% |
+| Macro F1 | 0.9620 |
+| Weighted F1 | 0.9619 |
+| Test loss | 0.1060 |
+| Misclassified | 154 / 4,050 |
+
+The test accuracy (96.20%) is very close to the validation accuracy (96.23%), which is consistent with the validation-based selection not having overfitted to the validation set.
+
+![Test confusion matrix](results/final_test/high_final-evaluation_final_test_test_confusion_matrix.png)
+
+### Per-class results
+
+| Class | Precision | Recall | F1 | Support |
+|---|---|---|---|---|
+| AnnualCrop | 0.9789 | 0.9267 | 0.9521 | 450 |
+| Forest | 0.9375 | 1.0000 | 0.9677 | 450 |
+| HerbaceousVegetation | 0.9289 | 0.9578 | 0.9431 | 450 |
+| Highway | 0.9684 | 0.9813 | 0.9748 | 375 |
+| Industrial | 0.9758 | 0.9680 | 0.9719 | 375 |
+| Pasture | 0.9603 | 0.9667 | 0.9635 | 300 |
+| PermanentCrop | 0.9457 | 0.9280 | 0.9367 | 375 |
+| Residential | 0.9612 | 0.9911 | 0.9759 | 450 |
+| River | 0.9730 | 0.9600 | 0.9664 | 375 |
+| SeaLake | 0.9976 | 0.9400 | 0.9680 | 450 |
+
+- Strongest classes (F1): Residential (0.9759), Highway (0.9748), Industrial (0.9719)
+- Weakest classes (F1): PermanentCrop (0.9367), HerbaceousVegetation (0.9431), AnnualCrop (0.9521)
+
+### Main confusions (true → predicted)
+
+| Pair | Count |
+|---|---|
+| PermanentCrop → HerbaceousVegetation | 17 |
+| SeaLake → Forest | 15 |
+| Industrial → Residential | 10 |
+| AnnualCrop → PermanentCrop | 9 |
+| HerbaceousVegetation → PermanentCrop | 8 |
+
+The pairs are similar to those found on the validation set (for example SeaLake → Forest and PermanentCrop → HerbaceousVegetation). Each pair has a small count, so these are descriptive patterns, not statistically tested claims.
+
+### Model complexity
+
+| Item | Value |
+|---|---|
+| Parameters | 3,544,266 |
+| FLOPs per image | about 3.95 billion (TensorFlow profiler, about 2 × MACs) |
+| Checkpoint size | 67.8 MB |
+| Throughput (Tesla T4, batch 32) | about 1,197 images/s |
+
+All test results are saved in [`results/final_test/`](results/final_test/). The final report is [`high_final_evaluation_final_report.md`](results/final_test/high_final_evaluation_final_report.md). The model file and raw predictions are not stored in the repository.
+
+
 ## Model and training
 
 - ResNet-style CNN: stem conv, three residual stages (64/128/256 filters, 2 blocks each), global average pooling, dense head
@@ -65,8 +124,9 @@ Section 3.5.2 of the notebook loads the saved ranking from `results/valid_sweep_
 
 ## Repository structure
 
-    notebooks/CNN_High_FLOPs.ipynb   Phase 1 and Phase 2 analysis (committed without outputs)
+    notebooks/CNN_High_FLOPs.ipynb   Phase 1, Phase 2 and final test evaluation (committed without outputs)
     results/                         Phase 2 result tables (sweep ranking, selected config, baseline vs tuned)
+    results/final_test/              Final test evaluation (metrics, report, confusion matrix, complexity)
     data/split_manifest.csv          Train/val/test split (one row per image)
     src/eurosat_cnn/                 Reusable package
         config.py                    Constants and paths
@@ -82,7 +142,7 @@ Section 3.5.2 of the notebook loads the saved ranking from `results/valid_sweep_
         tracking.py                  W&B utilities
         split_manifest.py            Create, build and verify the split from the manifest
 
-The notebook is a snapshot of the analysis up to Phase 2 and contains its own inline code. The `eurosat_cnn` package is the reusable, tested version of the same utilities.
+The notebook contains the full analysis (Phase 1, Phase 2 and the final test evaluation in Section 4) with its own inline code. The `eurosat_cnn` package is the reusable, tested version of the same utilities.
 
 ## Setup
 
@@ -114,4 +174,4 @@ Weights & Biases is optional: run `wandb login`, or set `WANDB_MODE=offline`.
 
 ## Status
 
-Phase 1 (baseline and error analysis) and Phase 2 (hyperparameter tuning, Baseline retained) are complete. Final evaluation on the test set is next.
+Phase 1 (baseline and error analysis), Phase 2 (hyperparameter tuning, Baseline retained) and the final test evaluation are complete. Final result: 96.20% test accuracy, macro F1 0.9620.
