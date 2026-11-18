@@ -1,0 +1,14 @@
+{
+    "total_params": 3544266,
+    "trainable_params": 3539786,
+    "non_trainable_params": 4480,
+    "params_size_mb": 13.5203,
+    "checkpoint_size_mb": 67.8107,
+    "flops_per_image": 3945769404,
+    "gflops_per_image": 3.9458,
+    "inference_device": "Tesla T4",
+    "latency_ms_per_image_batch1": 18.9422,
+    "latency_std_ms_batch1": 7.1641,
+    "ms_per_image_batch32": 0.8353,
+    "throughput_img_per_s_batch32": 1197.23
+}

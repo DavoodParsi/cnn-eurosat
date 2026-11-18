@@ -1,0 +1,9 @@
+{
+  "keras_metrics": {
+    "accuracy": 0.9619753360748291,
+    "loss": 0.10595227777957916
+  },
+  "checkpoint_path": "outputs/high/checkpoints/high_baseline.keras",
+  "checkpoint_sha256": "b6be1306c4018473c7ade9c9ee50224f258af11531a7f9b9bed9cc4afa70236e",
+  "test_samples": 4050
+}

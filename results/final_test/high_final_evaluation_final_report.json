@@ -1,0 +1,252 @@
+{
+    "model": "High-FLOPs Custom CNN",
+    "model_name": "high",
+    "dataset": "EuroSAT_RGB",
+    "test_samples": 4050,
+    "checkpoint_sha256": "b6be1306c4018473c7ade9c9ee50224f258af11531a7f9b9bed9cc4afa70236e",
+    "wandb_run_name": "high_final_evaluation",
+    "wandb_run_id": "bj1q54kc",
+    "generated_utc": "2026-11-18T10:58:21+00:00",
+    "results": {
+        "accuracy": 0.9619753086419753,
+        "macro_f1": 0.9620160339716669,
+        "weighted_f1": 0.961928590091454,
+        "loss": 0.10595227777957916,
+        "total_errors": 154
+    },
+    "per_class": {
+        "AnnualCrop": {
+            "precision": 0.9788732394366197,
+            "recall": 0.9266666666666666,
+            "f1_score": 0.952054794520548,
+            "support": 450
+        },
+        "Forest": {
+            "precision": 0.9375,
+            "recall": 1.0,
+            "f1_score": 0.967741935483871,
+            "support": 450
+        },
+        "HerbaceousVegetation": {
+            "precision": 0.9288793103448276,
+            "recall": 0.9577777777777777,
+            "f1_score": 0.9431072210065645,
+            "support": 450
+        },
+        "Highway": {
+            "precision": 0.968421052631579,
+            "recall": 0.9813333333333333,
+            "f1_score": 0.9748344370860927,
+            "support": 375
+        },
+        "Industrial": {
+            "precision": 0.9758064516129032,
+            "recall": 0.968,
+            "f1_score": 0.9718875502008032,
+            "support": 375
+        },
+        "Pasture": {
+            "precision": 0.9602649006622517,
+            "recall": 0.9666666666666667,
+            "f1_score": 0.9634551495016611,
+            "support": 300
+        },
+        "PermanentCrop": {
+            "precision": 0.9456521739130435,
+            "recall": 0.928,
+            "f1_score": 0.9367429340511441,
+            "support": 375
+        },
+        "Residential": {
+            "precision": 0.9612068965517241,
+            "recall": 0.9911111111111112,
+            "f1_score": 0.975929978118162,
+            "support": 450
+        },
+        "River": {
+            "precision": 0.972972972972973,
+            "recall": 0.96,
+            "f1_score": 0.9664429530201343,
+            "support": 375
+        },
+        "SeaLake": {
+            "precision": 0.9976415094339622,
+            "recall": 0.94,
+            "f1_score": 0.9679633867276888,
+            "support": 450
+        }
+    },
+    "weakest_classes": {
+        "PermanentCrop": 0.9367429340511441,
+        "HerbaceousVegetation": 0.9431072210065645,
+        "AnnualCrop": 0.952054794520548
+    },
+    "top_confusions": {
+        "PermanentCrop -> HerbaceousVegetation": 17,
+        "SeaLake -> Forest": 15,
+        "Industrial -> Residential": 10,
+        "AnnualCrop -> PermanentCrop": 9,
+        "HerbaceousVegetation -> PermanentCrop": 8
+    },
+    "confusion_matrix": {
+        "class_names": [
+            "AnnualCrop",
+            "Forest",
+            "HerbaceousVegetation",
+            "Highway",
+            "Industrial",
+            "Pasture",
+            "PermanentCrop",
+            "Residential",
+            "River",
+            "SeaLake"
+        ],
+        "rows": "true class",
+        "columns": "predicted class",
+        "matrix": [
+            [
+                417,
+                4,
+                7,
+                2,
+                0,
+                6,
+                9,
+                0,
+                5,
+                0
+            ],
+            [
+                0,
+                450,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            [
+                1,
+                4,
+                431,
+                1,
+                0,
+                1,
+                8,
+                4,
+                0,
+                0
+            ],
+            [
+                1,
+                0,
+                0,
+                368,
+                3,
+                0,
+                0,
+                2,
+                1,
+                0
+            ],
+            [
+                0,
+                0,
+                1,
+                1,
+                363,
+                0,
+                0,
+                10,
+                0,
+                0
+            ],
+            [
+                0,
+                6,
+                1,
+                0,
+                0,
+                290,
+                2,
+                0,
+                1,
+                0
+            ],
+            [
+                4,
+                1,
+                17,
+                2,
+                1,
+                0,
+                348,
+                1,
+                1,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                0,
+                4,
+                0,
+                0,
+                446,
+                0,
+                0
+            ],
+            [
+                1,
+                0,
+                4,
+                6,
+                1,
+                0,
+                1,
+                1,
+                360,
+                1
+            ],
+            [
+                2,
+                15,
+                3,
+                0,
+                0,
+                5,
+                0,
+                0,
+                2,
+                423
+            ]
+        ]
+    },
+    "complexity": {
+        "total_params": 3544266,
+        "trainable_params": 3539786,
+        "non_trainable_params": 4480,
+        "params_size_mb": 13.5203,
+        "checkpoint_size_mb": 67.8107,
+        "flops_per_image": 3945769404,
+        "gflops_per_image": 3.9458,
+        "inference_device": "Tesla T4",
+        "latency_ms_per_image_batch1": 18.9422,
+        "latency_std_ms_batch1": 7.1641,
+        "ms_per_image_batch32": 0.8353,
+        "throughput_img_per_s_batch32": 1197.23
+    },
+    "output_files": {
+        "Final test metrics (JSON)": "outputs/high/high_final_evaluation/high_final-evaluation_final_test_test_metrics.json",
+        "Classification report": "outputs/high/high_final_evaluation/high_final-evaluation_final_test_test_classification_report.txt",
+        "Confusion matrix (plot)": "outputs/high/high_final_evaluation/high_final-evaluation_final_test_test_confusion_matrix.png",
+        "Confusion matrix (CSV)": "outputs/high/high_final_evaluation/high_final_evaluation_confusion_matrix.csv",
+        "Confusion matrix (JSON)": "outputs/high/high_final_evaluation/high_final_evaluation_confusion_matrix.json",
+        "Model complexity (JSON)": "outputs/high/high_final_evaluation/high_final_evaluation_model_complexity.json",
+        "Handoff package": "outputs/high/high_final_evaluation/handoff"
+    }
+}
