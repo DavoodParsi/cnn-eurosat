@@ -18,6 +18,7 @@ data/*
 !data/split_manifest.csv
 outputs/
 *.keras
+!deploy/model/high_final_model.keras
 *.h5
 *.npz
 

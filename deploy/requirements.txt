@@ -1,0 +1,9 @@
+# Requires Python 3.10+ (tested with 3.12)
+tensorflow==2.21.0
+keras==3.13.0
+numpy==1.26.4
+fastapi==0.143.1
+uvicorn==0.54.0
+python-multipart==0.0.32
+pillow==11.3.0
+pydantic==2.13.5
