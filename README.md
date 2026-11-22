@@ -152,6 +152,8 @@ Then open http://127.0.0.1:7860/docs. Note: the Docker setup has not been tested
 
 Example response:
 
+![Prediction example](docs/figures/deploy_predict_example.png)
+
 ```json
 {"class_name": "Pasture", "confidence": 0.9957}
 ```
