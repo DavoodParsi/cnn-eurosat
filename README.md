@@ -111,7 +111,7 @@ The pairs are similar to those found on the validation set (for example SeaLake 
 | Checkpoint size | 67.8 MB |
 | Throughput (Tesla T4, batch 32) | about 1,197 images/s |
 
-All test results are saved in [`results/final_test/`](results/final_test/). The final report is [`high_final_evaluation_final_report.md`](results/final_test/high_final_evaluation_final_report.md). The model file and raw predictions are not stored in the repository.
+All test results are saved in [`results/final_test/`](results/final_test/). The final report is [`high_final_evaluation_final_report.md`](results/final_test/high_final_evaluation_final_report.md). Raw predictions are not stored in the repository. The final model is included only in [`deploy/`](deploy/) for the inference API.
 
 
 ## Model and training
@@ -122,12 +122,50 @@ All test results are saved in [`results/final_test/`](results/final_test/). The 
 - Early stopping, checkpointing and LR reduction on plateau
 - Experiment tracking with Weights & Biases
 
+
+## Deployment (local FastAPI service)
+
+The final model is served by a FastAPI app in [`deploy/`](deploy/). It accepts a JPEG/PNG image (max 5 MB) and returns the predicted class and confidence. The model resizes inputs to 64×64 and rescales pixels internally, so no extra preprocessing is needed.
+
+### Run with Python
+
+    cd deploy
+    pip install -r requirements.txt
+    uvicorn main:app
+
+Then open http://127.0.0.1:8000/docs, choose `POST /predict`, click **Try it out** and upload an image.
+
+### Run with Docker
+
+    cd deploy
+    docker build -t eurosat-api .
+    docker run -p 7860:7860 eurosat-api
+
+Then open http://127.0.0.1:7860/docs. Note: the Docker setup has not been tested yet.
+
+### Endpoints
+
+| Endpoint | Description |
+|---|---|
+| `GET /health` | Service status |
+| `POST /predict` | Returns `class_name` and `confidence` |
+
+Example response:
+
+```json
+{"class_name": "Pasture", "confidence": 0.9957}
+```
+
+The service runs locally. It is not hosted online.
+
+
 ## Repository structure
 
     notebooks/CNN_High_FLOPs.ipynb   Phase 1, Phase 2 and final test evaluation (committed without outputs)
     results/                         Phase 2 result tables (sweep ranking, selected config, baseline vs tuned)
     results/final_test/              Final test evaluation (metrics, report, confusion matrix, complexity)
     data/split_manifest.csv          Train/val/test split (one row per image)
+    deploy/                          FastAPI inference service (API, Dockerfile, final model)
     src/eurosat_cnn/                 Reusable package
         config.py                    Constants and paths
         environment.py               Seeds, GPU and mixed precision
@@ -175,3 +213,5 @@ Weights & Biases is optional: run `wandb login`, or set `WANDB_MODE=offline`.
 ## Status
 
 Phase 1 (baseline and error analysis), Phase 2 (hyperparameter tuning, Baseline retained) and the final test evaluation are complete. Final result: 96.20% test accuracy, macro F1 0.9620.
+
+A FastAPI inference service for the final model is available in `deploy/` (local use).
