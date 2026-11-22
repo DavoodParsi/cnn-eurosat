@@ -2,6 +2,27 @@
 
 A custom residual CNN for 10-class land-use classification on the EuroSAT RGB dataset, with a focus on **error analysis** and **Grad-CAM interpretability** rather than accuracy alone.
 
+## Pretrained Model
+
+The final **High-FLOPs Custom CNN** is publicly available on Hugging Face.
+
+**[View Model on Hugging Face](https://huggingface.co/DavoodParsi/eurosat-land-cover-classifier)**
+
+| Property | Value |
+|---|---|
+| Model | High-FLOPs Custom CNN |
+| Framework | TensorFlow / Keras |
+| Model Format | Keras (`.keras`) |
+| Model Size | 67.8 MB |
+| Input Shape | 64 × 64 × 3 |
+| Number of Classes | 10 |
+| Test Accuracy | 96.20% |
+| Macro F1 | 0.9620 |
+
+The Hugging Face repository includes the final trained model, class mapping, model configuration, and inference instructions.
+
+The model can be downloaded and used independently of the training and deployment code in this repository.
+
 ## Results (Phase 1 baseline, validation set)
 
 | Metric | Value |
@@ -35,12 +56,11 @@ Grad-CAM and visual inspection suggest shared vegetation/texture cues and ambigu
 
 An interrupted run reached 96.69% validation accuracy (loss 0.0973) before training was stopped by hardware limits. Because it did not finish, it is documented as promising but inconclusive. Phase 2 (hyperparameter search and retraining) is described below.
 
-
 ## Phase 2: Hyperparameter tuning
 
 A 27-configuration grid search using W&B Sweeps (learning rate: 5e-5 / 1e-4 / 2e-4, weight decay: 1e-5 / 1e-4 / 1e-3, dropout: 0.3 / 0.4 / 0.5; 15 epochs per trial) selected the configuration with the lowest validation loss: `learning rate = 2e-4, weight decay = 1e-4, dropout = 0.3`.
 
-Retrained with the same training budget as the Baseline (up to 50 epochs, early stopping patience 5), it **did not beat the Baseline**, so the Baseline remains the final model.
+Retrained with the same training budget as the Baseline (up to 50 epochs, early stopping patience 5), it **did not beat the Baseline**. Therefore, the Baseline configuration of the High-FLOPs Custom CNN remains the selected final model.
 
 | Model (validation set) | Loss | Accuracy | Macro F1 | Errors | SeaLake → Forest |
 |---|---|---|---|---|---|
@@ -55,10 +75,9 @@ This is a hypothesis, not a confirmed explanation: each configuration was evalua
 
 Section 3.5.2 of the notebook loads the saved ranking from `results/valid_sweep_comparison.csv`, so the following sections can be followed without W&B access.
 
-
 ## Final test results
 
-The selected Baseline model was evaluated **once** on the held-out test set (4,050 images), after all training, tuning and model-selection decisions were finished. No decision was changed after seeing these results.
+The selected **High-FLOPs Custom CNN (Baseline configuration)** was evaluated **once** on the held-out test set (4,050 images), after all training, tuning and model-selection decisions were finished. No decision was changed after seeing these results.
 
 | Metric | Value |
 |---|---|
@@ -111,8 +130,9 @@ The pairs are similar to those found on the validation set (for example SeaLake 
 | Checkpoint size | 67.8 MB |
 | Throughput (Tesla T4, batch 32) | about 1,197 images/s |
 
-All test results are saved in [`results/final_test/`](results/final_test/). The final report is [`high_final_evaluation_final_report.md`](results/final_test/high_final_evaluation_final_report.md). Raw predictions are not stored in the repository. The final model is included only in [`deploy/`](deploy/) for the inference API.
+All test results are saved in [`results/final_test/`](results/final_test/). The final report is [`high_final_evaluation_final_report.md`](results/final_test/high_final_evaluation_final_report.md). Raw predictions are not stored in the repository.
 
+The final model is included in [`deploy/`](deploy/) for the local inference API. A public copy is also available through the Hugging Face Model Repository linked above.
 
 ## Model and training
 
@@ -122,26 +142,29 @@ All test results are saved in [`results/final_test/`](results/final_test/). The 
 - Early stopping, checkpointing and LR reduction on plateau
 - Experiment tracking with Weights & Biases
 
-
 ## Deployment (local FastAPI service)
 
 The final model is served by a FastAPI app in [`deploy/`](deploy/). It accepts a JPEG/PNG image (max 5 MB) and returns the predicted class and confidence. The model resizes inputs to 64×64 and rescales pixels internally, so no extra preprocessing is needed.
 
 ### Run with Python
 
-    cd deploy
-    pip install -r requirements.txt
-    uvicorn main:app
+```bash
+cd deploy
+pip install -r requirements.txt
+uvicorn main:app
+```
 
-Then open http://127.0.0.1:8000/docs, choose `POST /predict`, click **Try it out** and upload an image.
+Then open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs), choose `POST /predict`, click **Try it out** and upload an image.
 
 ### Run with Docker
 
-    cd deploy
-    docker build -t eurosat-api .
-    docker run -p 7860:7860 eurosat-api
+```bash
+cd deploy
+docker build -t eurosat-api .
+docker run -p 7860:7860 eurosat-api
+```
 
-Then open http://127.0.0.1:7860/docs. Note: the Docker setup has not been tested yet.
+Then open [http://127.0.0.1:7860/docs](http://127.0.0.1:7860/docs). Note: the Docker setup has not been tested yet.
 
 ### Endpoints
 
@@ -155,32 +178,48 @@ Example response:
 ![Prediction example](docs/figures/deploy_predict_example.png)
 
 ```json
-{"class_name": "Pasture", "confidence": 0.9957}
+{
+  "class_name": "Pasture",
+  "confidence": 0.9957
+}
 ```
 
 The service runs locally. It is not hosted online.
 
-
 ## Repository structure
 
-    notebooks/CNN_High_FLOPs.ipynb   Phase 1, Phase 2 and final test evaluation (committed without outputs)
-    results/                         Phase 2 result tables (sweep ranking, selected config, baseline vs tuned)
-    results/final_test/              Final test evaluation (metrics, report, confusion matrix, complexity)
-    data/split_manifest.csv          Train/val/test split (one row per image)
-    deploy/                          FastAPI inference service (API, Dockerfile, final model)
-    src/eurosat_cnn/                 Reusable package
-        config.py                    Constants and paths
-        environment.py               Seeds, GPU and mixed precision
-        data.py                      Dataset loading and sanity checks
-        models.py                    Augmentation, residual block, CNN
-        train.py                     Callbacks, LR schedules, compilation
-        evaluate.py                  Metrics
-        error_analysis.py            Error and confidence analysis
-        explain.py                   Grad-CAM
-        visualization.py             Plots and reports
-        reporting.py                 Model reports
-        tracking.py                  W&B utilities
-        split_manifest.py            Create, build and verify the split from the manifest
+```text
+cnn-eurosat/
+├── notebooks/
+│   └── CNN_High_FLOPs.ipynb
+├── results/
+│   ├── Phase 2 result tables
+│   └── final_test/
+│       ├── Final test metrics
+│       ├── Final report
+│       ├── Confusion matrix
+│       └── Model complexity
+├── data/
+│   └── split_manifest.csv
+├── deploy/
+│   ├── FastAPI inference service
+│   ├── Dockerfile
+│   └── Final model
+└── src/
+    └── eurosat_cnn/
+        ├── config.py
+        ├── environment.py
+        ├── data.py
+        ├── models.py
+        ├── train.py
+        ├── evaluate.py
+        ├── error_analysis.py
+        ├── explain.py
+        ├── visualization.py
+        ├── reporting.py
+        ├── tracking.py
+        └── split_manifest.py
+```
 
 The notebook contains the full analysis (Phase 1, Phase 2 and the final test evaluation in Section 4) with its own inline code. The `eurosat_cnn` package is the reusable, tested version of the same utilities.
 
@@ -188,8 +227,10 @@ The notebook contains the full analysis (Phase 1, Phase 2 and the final test eva
 
 Python 3.10 or newer (tested with 3.12).
 
-    pip install -r requirements.txt
-    pip install -e .
+```bash
+pip install -r requirements.txt
+pip install -e .
+```
 
 ### Dataset
 
@@ -197,8 +238,10 @@ The train/val/test split used in this project is stored in `data/split_manifest.
 
 **Option A: rebuild my exact split** from the original EuroSAT RGB dataset (a folder that directly contains the ten class folders):
 
-    python src/eurosat_cnn/split_manifest.py build --source <path-to-original-EuroSAT> --output data/EuroSAT_RGB
-    python src/eurosat_cnn/split_manifest.py verify
+```bash
+python src/eurosat_cnn/split_manifest.py build --source <path-to-original-EuroSAT> --output data/EuroSAT_RGB
+python src/eurosat_cnn/split_manifest.py verify
+```
 
 The original dataset is only read, never modified. `verify` compares the result with the manifest.
 
@@ -214,6 +257,10 @@ Weights & Biases is optional: run `wandb login`, or set `WANDB_MODE=offline`.
 
 ## Status
 
-Phase 1 (baseline and error analysis), Phase 2 (hyperparameter tuning, Baseline retained) and the final test evaluation are complete. Final result: 96.20% test accuracy, macro F1 0.9620.
+Phase 1 (baseline and error analysis), Phase 2 (hyperparameter tuning, Baseline configuration retained) and the final test evaluation are complete.
 
-A FastAPI inference service for the final model is available in `deploy/` (local use).
+Final result: **96.20% test accuracy, macro F1 0.9620**.
+
+A FastAPI inference service for the final model is available in `deploy/` for local use.
+
+The final trained model is also publicly available on [Hugging Face](https://huggingface.co/DavoodParsi/eurosat-land-cover-classifier).
