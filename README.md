@@ -264,3 +264,7 @@ Final result: **96.20% test accuracy, macro F1 0.9620**.
 A FastAPI inference service for the final model is available in `deploy/` for local use.
 
 The final trained model is also publicly available on [Hugging Face](https://huggingface.co/DavoodParsi/eurosat-land-cover-classifier).
+
+## Feedback
+
+If you run into an error or something doesn't work, please [open an issue](https://github.com/DavoodParsi/cnn-eurosat/issues).
